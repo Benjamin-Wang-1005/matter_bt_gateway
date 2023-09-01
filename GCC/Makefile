@@ -429,8 +429,10 @@ C_FILES        += $(APP_FILES) $(SYS_FILES)
 S_FILES        += $(APP_PATH)/GCC/startup_mt7933.s
 
 #LOT begin
-ifeq (&(LOT_GATEWAY),y)
+ifeq ($(LOT_GATEWAY),y)
 CFLAGS += -DLOT_GATEWAY
+APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_wifi.c
+APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_timer.c
 endif
 #LOT end
 #######################################################
@@ -443,7 +445,7 @@ CFLAGS += -I$(SOURCE_DIR)/driver/board/mt7933_hdk/ept/inc
 #CFLAGS += -I$(SOURCE_DIR)/middleware/MTK/wifi_service/combo/inc
 
 #LOT begin
-ifeq (&(LOT_GATEWAY),y)
+ifeq ($(LOT_GATEWAY),y)
 CFLAGS += -I$(SOURCE_DIR)/$(APP_PATH)/inc/lot_gateway
 endif
 #LOT end

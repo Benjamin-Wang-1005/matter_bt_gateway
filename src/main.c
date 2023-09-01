@@ -93,6 +93,11 @@
 #include "ping.h"
 #include "wifi_netif.h"
 /* Task priorities. */
+//Add by Benjamin@20230901 begin
+#ifdef LOT_GATEWAY
+#include "lot_gateway/lot_wifi.h"
+#endif
+//Add by Benjamin@20230901 end
 #endif /* #ifdef MTK_MT7933_WIFI_ENABLE */
 
 #ifdef MTK_UT_ENABLE
@@ -193,6 +198,8 @@ int32_t wifi_init_done_handler_test(wifi_event_t event,
     return 0;
 }
 
+//Modify by Benjamin@20230901 begin
+#ifndef LOT_GATEWAY
 void wifi_auto_init_task(void *para)
 {
 
@@ -273,9 +280,23 @@ void wifi_auto_init_task(void *para)
     }
     vTaskDelete(NULL);
 }
+#endif //#ifndef LOT_GATEWAY
+//Modify by Benjamin@20230901 end
 
 int wifi_task_create(void)
 {
+//Modify by Benjamin@20230901 begin
+#ifdef LOT_GATEWAY
+    if (xTaskCreate(lot_wifi_init_task,
+                    wifi_auto_init_TASK_NAME,
+                    wifi_auto_init_TASK_STACKSIZE / sizeof(portSTACK_TYPE),
+                    NULL,
+                    wifi_auto_init_TASK_PRIO,
+                    NULL) != pdPASS) {
+        LOG_E(common, "xTaskCreate fail");
+        return -1;
+    }
+#else
     if (xTaskCreate(wifi_auto_init_task,
                     wifi_auto_init_TASK_NAME,
                     wifi_auto_init_TASK_STACKSIZE / sizeof(portSTACK_TYPE),
@@ -285,7 +306,8 @@ int wifi_task_create(void)
         LOG_E(common, "xTaskCreate fail");
         return -1;
     }
-
+#endif //#ifdef LOT_GATEWAY
+//Modify by Benjamin@20230901 end
     return 0;
 }
 #endif /* #ifdef MTK_MT7933_WIFI_ENABLE */
