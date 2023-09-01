@@ -57,6 +57,7 @@
 
 #ifdef HAL_WDT_MODULE_ENABLED
 #include "hal_wdt.h"
+#include "hal_sys.h"
 #endif
 #include "common.h"
 #include "mt7933_pos.h"
@@ -109,6 +110,20 @@
 SemaphoreHandle_t gConnsysCalLock = NULL;
 SemaphoreHandle_t gConnsysRadioOnLock = NULL;
 #endif
+//Add by Benjamin@20230901 begin
+static void _deviceReboot(void)
+{
+    hal_cache_disable();
+    hal_cache_deinit();
+    hal_sys_reboot(HAL_SYS_REBOOT_MAGIC, WHOLE_SYSTEM_REBOOT_COMMAND);
+}
+
+void exception_reboot(void)
+{
+    LOGI("exception_reboot()");
+    _deviceReboot();
+}
+//Add by Benjamin@20230901 end
 #ifdef HAL_WDT_MODULE_ENABLED
 void wdt_timeout_handle(hal_wdt_reset_status_t wdt_reset_status)
 {
@@ -189,6 +204,8 @@ bool iot_IsIpReady(struct netif *netif)
     return ip_addr_isany_val(netif->ip_addr) ? 0 : 1;
 }
 
+//Modify by Benjamin@20230901 begin
+#ifndef LOT_GATEWAY
 int32_t wifi_init_done_handler_test(wifi_event_t event,
                                     uint8_t *payload,
                                     uint32_t length)
@@ -199,8 +216,6 @@ int32_t wifi_init_done_handler_test(wifi_event_t event,
     return 0;
 }
 
-//Modify by Benjamin@20230901 begin
-#ifndef LOT_GATEWAY
 void wifi_auto_init_task(void *para)
 {
 
