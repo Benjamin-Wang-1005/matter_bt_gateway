@@ -40,6 +40,7 @@
 #include "lot_rtos.h"
 //#include "lot_timer.h"
 #include "nvdm.h"
+#include "wifi_api_ex.h"
 
 //-----------------------------------------------------------------------------------------
 //HAL_UART_0 -> com33_uart
@@ -77,10 +78,18 @@ void _s_wifi_config_init(void)
     len = sizeof(read_buf);
     nvdm_read_data_item("common", "OpMode", read_buf, &len);
     memcpy(s_wifi_config.mode, read_buf, len);
-    if(s_wifi_config.mode[0] == '1'){
+    if(s_wifi_config.mode[0] == WIFI_MODE_STA_ONLY){
         strcpy(str, "STA");
-    }else if(s_wifi_config.mode[0] == '2'){
+        len = sizeof(read_buf);
+        memset(read_buf, 0x00, WIFI_MAX_LENGTH_OF_SSID+1);
+        nvdm_read_data_item(str, "Ssid", read_buf, &len);
+        memcpy(s_wifi_config.SSID, read_buf, len);
+    }else if((s_wifi_config.mode[0] == WIFI_MODE_AP_ONLY) || (s_wifi_config.mode[0] == WIFI_MODE_REPEATER)){
         strcpy(str, "AP");
+        len = sizeof(read_buf);
+        memset(read_buf, 0x00, WIFI_MAX_LENGTH_OF_SSID+1);
+        nvdm_read_data_item("hapd", "Ssid", read_buf, &len);
+        memcpy(s_wifi_config.SSID, read_buf, len);
     }
     len = sizeof(read_buf);
     memset(read_buf, 0x00, WIFI_MAX_LENGTH_OF_SSID+1);
@@ -241,9 +250,11 @@ void _processCmd(void)
                 //temp = sizeof(read_buf);
                 //nvdm_read_data_item("common", "OpMode", read_buf, &temp);
                 if(s_wifi_config.mode[0] == "1"){
-                  str_len = (uint32_t)sprintf(temp_buf, "OP_mode: STA\n");  
+                    str_len = (uint32_t)sprintf(temp_buf, "OP_mode: STA\n");  
                 }else if(s_wifi_config.mode[0] == '2'){
-                  str_len = (uint32_t)sprintf(temp_buf, "OP_mode: AP\n");  
+                    str_len = (uint32_t)sprintf(temp_buf, "OP_mode: AP\n");  
+                }else if(s_wifi_config.mode[0] == WIFI_MODE_REPEATER){
+                    str_len = (uint32_t)sprintf(temp_buf, "OP_mode: Repeater\n");
                 }
                 gateway_uart_send_data(temp_buf, (uint32_t)str_len);
                 return;
@@ -374,13 +385,14 @@ void _processCmd(void)
             }
             nvdm_write_data_item("common", "OpMode", NVDM_DATA_ITEM_TYPE_STRING, s_wifi_config.mode, 1);
             uint8_t str[4];
-            if(s_wifi_config.mode[0] == '1'){        //STA
-                strcpy(str, "STA");   
-            }else if(s_wifi_config.mode[0] == '2'){
-                strcpy(str, "AP");
-            }
             temp = _my_strlen(s_wifi_config.SSID);
-            nvdm_write_data_item(str, "Ssid", NVDM_DATA_ITEM_TYPE_STRING, s_wifi_config.SSID, temp);
+            if(s_wifi_config.mode[0] == WIFI_MODE_STA_ONLY){        //STA
+                strcpy(str, "STA");
+                nvdm_write_data_item(str, "Ssid", NVDM_DATA_ITEM_TYPE_STRING, s_wifi_config.SSID, temp);   
+            }else if((s_wifi_config.mode[0] == WIFI_MODE_AP_ONLY) || (s_wifi_config.mode[0] == WIFI_MODE_REPEATER)){
+                strcpy(str, "AP");
+                nvdm_write_data_item("hapd", "Ssid", NVDM_DATA_ITEM_TYPE_STRING, s_wifi_config.SSID, temp);
+            }
             temp = _my_strlen(s_wifi_config.SSID_len);
             nvdm_write_data_item(str, "SsidLen", NVDM_DATA_ITEM_TYPE_STRING, s_wifi_config.SSID_len, temp);
             if(s_wifi_config.encry_type[0] != "0"){

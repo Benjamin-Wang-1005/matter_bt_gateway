@@ -435,8 +435,9 @@ APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_wifi.c
 APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_timer.c
 APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_uart.c
 endif
-ifeq ($(MTK_PORT_SERVICE_ENABLE), y)
-CFLAGS += -I$(SOURCE_DIR)/middleware/MTK/port_service/inc
+
+ifeq ($(MTK_WIFI_REPEATER_ENABLE), y)
+CFLAGS += -DMTK_WIFI_REPEATER_ENABLE
 endif
 #LOT end
 #######################################################
@@ -451,6 +452,9 @@ CFLAGS += -I$(SOURCE_DIR)/driver/board/mt7933_hdk/ept/inc
 #LOT begin
 ifeq ($(LOT_GATEWAY),y)
 CFLAGS += -I$(SOURCE_DIR)/$(APP_PATH)/inc/lot_gateway
+endif
+ifeq ($(MTK_PORT_SERVICE_ENABLE), y)
+CFLAGS += -I$(SOURCE_DIR)/middleware/MTK/port_service/inc
 endif
 #LOT end
 
