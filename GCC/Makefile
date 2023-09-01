@@ -433,6 +433,10 @@ ifeq ($(LOT_GATEWAY),y)
 CFLAGS += -DLOT_GATEWAY
 APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_wifi.c
 APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_timer.c
+APP_FILES      += $(APP_PATH_SRC)/lot_gateway/lot_uart.c
+endif
+ifeq ($(MTK_PORT_SERVICE_ENABLE), y)
+CFLAGS += -I$(SOURCE_DIR)/middleware/MTK/port_service/inc
 endif
 #LOT end
 #######################################################

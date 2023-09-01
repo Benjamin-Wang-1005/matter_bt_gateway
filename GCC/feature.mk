@@ -198,3 +198,7 @@ MTK_SCAN_LIST_SIZE                   = 32
 #LOT Begin
 LOT_MODULE_ENABLE					 = y
 LOT_GATEWAY							 = y
+MTK_PORT_SERVICE_ENABLE				 = y
+HAL_UART_MODULE_ENABLED				 = y
+# E/W/I/D
+LINKOT_LOG_LEVEL                    = I

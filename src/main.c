@@ -96,6 +96,7 @@
 //Add by Benjamin@20230901 begin
 #ifdef LOT_GATEWAY
 #include "lot_gateway/lot_wifi.h"
+#include "lot_gateway/lot_uart.h"
 #endif
 //Add by Benjamin@20230901 end
 #endif /* #ifdef MTK_MT7933_WIFI_ENABLE */
@@ -390,6 +391,10 @@ int main(void)
 #endif
 #ifdef MTK_MT7933_WIFI_ENABLE
     wifi_task_create();
+//Add by Benjamin@20230901 begin
+#ifdef LOT_GATEWAY
+    gateway_bt_uart_init();
+#endif
 #endif /* #ifdef MTK_MT7933_WIFI_ENABLE */
     vTaskStartScheduler();
 
